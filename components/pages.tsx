@@ -3,6 +3,7 @@ import { ArrowIcon, FloatingActions } from "@/components/site";
 import { EnquiryForm } from "@/components/forms";
 import { HomeHero } from "@/components/home-hero";
 import { ScrollReveal } from "@/components/scroll-reveal";
+import { StackCards } from "@/components/stack-cards";
 
 const images = {
   hero: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=2200&q=85",
@@ -62,6 +63,8 @@ export function HomePage() {
           <div className="product-card-grid reveal-stagger">{categories.map((category, index) => <ScrollReveal key={category.slug} delay={index * 70}><Link className="product-card" href={`/products/${category.slug}`}><div className="product-card-image" style={{ backgroundImage: `url("${category.image}")` }}><span className="product-number">{category.number}</span><span className="product-open"><ArrowIcon diagonal /></span></div><div className="product-card-copy"><div><h3>{category.name}</h3><p>{category.summary}</p></div><span className="product-link-icon"><ArrowIcon /></span></div></Link></ScrollReveal>)}</div>
         </div>
       </section>
+
+      <StackCards />
 
       <section className="factory-editorial section-space">
         <div className="container">
