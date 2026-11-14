@@ -30,24 +30,12 @@ const primaryLinks = [
   { href: "/careers", label: "Careers" },
 ];
 
+/** Official DAEPL logo (vector, converted from the client’s CorelDRAW master in /public). */
 export function Mark({ light = false }: { light?: boolean }) {
   return (
-    <Link
-      href="/"
-      className={`brand${light ? " brand-light" : ""}`}
-      aria-label="Deep Auto Electricals home"
-    >
-      <span className="brand-mark" aria-hidden="true">
-        <svg viewBox="0 0 42 42" fill="none">
-          <path d="M7 29.5 16.8 9h8.4L16 29.5H7Z" fill="#188fc5" />
-          <path d="M21 33 30.8 12.5h5.8L26.8 33H21Z" fill="#efb43e" />
-          <path d="M7 33h11.4l2-4H9l-2 4Z" fill="#db4966" />
-        </svg>
-      </span>
-      <span className="brand-copy">
-        <strong>DEEP AUTO</strong>
-        <span>ELECTRICALS</span>
-      </span>
+    <Link href="/" className={`brand${light ? " brand-light" : ""}`} aria-label="Deep Auto Electricals home">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={light ? "/daepl-logo-white.svg" : "/daepl-logo.svg"} alt="DAEPL — Trust On Quality" width={116} height={100} className="brand-logo" />
     </Link>
   );
 }
