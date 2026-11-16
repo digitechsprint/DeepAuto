@@ -13,35 +13,35 @@ type StackCard = {
 const cards: StackCard[] = [
   {
     title: "Wire Harnesses",
-    text: "Purpose-built harness assemblies for lighting, instrumentation and ADAS — made to your drawing and electrically tested before dispatch.",
+    text: "Head lamp, tail lamp, winker, meter and ADAS assembly harnesses — cut, crimped, sealed and tested on our own lines.",
     href: "/products/wire-harnesses",
     image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&w=2000&q=80",
-    color: "#188fc5",
-    ink: "#0f6f9c",
+    color: "#0A6CF1",
+    ink: "#0857c4",
   },
   {
     title: "Manufacturing",
-    text: "44 crimping machines, an in-house tool room and injection moulding from 35 to 180 tonnes — people, processes and machines working as one.",
+    text: "100+ machines across wire processing, crimping, pressing, welding, moulding and an in-house tool room.",
     href: "/infrastructure",
     image: "https://images.unsplash.com/photo-1567789884554-0b844b597180?auto=format&fit=crop&w=2000&q=80",
-    color: "#efa21e",
-    ink: "#b06f00",
+    color: "#F37A30",
+    ink: "#b5531a",
   },
   {
     title: "Quality",
-    text: "IATF 16949 and ISO 9001 certified systems, with internal lab checks at every stage. Trust On Quality is how we work, not a slogan.",
+    text: "IATF 16949:2016 and ISO 9001:2015 certified, with an internal laboratory checking every stage. Trust On Quality.",
     href: "/quality",
     image: "https://images.unsplash.com/photo-1581091226033-d5c48150dbaa?auto=format&fit=crop&w=2000&q=80",
-    color: "#2f9e6b",
-    ink: "#1f7a50",
+    color: "#00A651",
+    ink: "#007a3c",
   },
   {
     title: "People & CSR",
-    text: "Women empowerment, skill development and a shared commitment to the communities around our plants in Delhi and Haryana.",
+    text: "Women empowerment on our shop floor, Dojo training for every team member and a safe, healthy workplace.",
     href: "/life-at-daepl",
     image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=2000&q=80",
-    color: "#db4966",
-    ink: "#b02c4a",
+    color: "#E52E36",
+    ink: "#b01e25",
   },
 ];
 
@@ -59,7 +59,7 @@ function Chevrons() {
 
 export function StackCards() {
   return (
-    <section className="stack-section" aria-label="What drives Deep Auto">
+    <section className="stack-section" aria-label="What drives DAEPL">
       {cards.map((card, i) => (
         <article
           key={card.title}

@@ -10,25 +10,25 @@ const slides = [
     image: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=2200&q=85",
     eyebrow: "AUTOMOTIVE COMPONENTS · SINCE 1998",
     heading: [{ text: "Precision in" }, { text: "every connection.", accent: true }],
-    description: "We engineer the components that bring vehicles to life. Made with care. Trusted to perform.",
+    description: "Wire harnesses, electrical terminals, sheet metal and moulded parts for India’s leading automotive brands — made with care since November 1998.",
   },
   {
     image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&w=2200&q=85",
     eyebrow: "ENGINEERED AROUND YOUR APPLICATION",
     heading: [{ text: "Made to fit." }, { text: "Made to move.", accent: true }],
-    description: "Wire harnesses, cables and precision components, designed for the demands of automotive manufacturing.",
+    description: "From head lamp to ADAS harnesses, every part is built to your drawing — with tooling, moulding and testing under one roof.",
   },
   {
     image: "https://images.unsplash.com/photo-1567789884554-0b844b597180?auto=format&fit=crop&w=2200&q=85",
     eyebrow: "BUILT ON EXPERIENCE · BUILT TOGETHER",
     heading: [{ text: "A legacy of care." }, { text: "Ready for what’s next.", accent: true }],
-    description: "More than 25 years of automotive manufacturing experience, with quality at the heart of every connection.",
+    description: "More than 25 years of automotive manufacturing across Samaypur and Bawana, with a new unit planned at IMT Manesar.",
   },
   {
     image: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=2200&q=85",
     eyebrow: "QUALITY IN EVERY STEP",
     heading: [{ text: "Details that matter." }, { text: "Quality that lasts.", accent: true }],
-    description: "Thoughtful engineering and careful manufacturing for every part of your vehicle.",
+    description: "IATF 16949:2016 and ISO 9001:2015 certified systems, backed by our own laboratory. Trust On Quality.",
   },
 ];
 
@@ -66,7 +66,7 @@ export function HomeHero() {
         </div>
         <div className="hero-bottom">
           <div className="hero-scroll"><span className="scroll-track" />SCROLL TO EXPLORE</div>
-          <div className="hero-trust"><span>IATF 16949</span><span className="trust-divider" /><span>ISO 9001</span><span className="trust-divider" /><span>Made in India</span></div>
+          <div className="hero-trust"><span>IATF 16949</span><span className="trust-divider" /><span>ISO 9001</span><span className="trust-divider" /><span>Since 1998</span></div>
         </div>
       </div>
       <div className="hero-index">
@@ -86,7 +86,7 @@ export function HomeHero() {
           ))}
         </div>
       </div>
-      <div className="hero-orbit"><span className="orbit-core" /><span className="orbit-ring orbit-ring-one" /><span className="orbit-ring orbit-ring-two" /><span className="orbit-label">DAE / 1998</span></div>
+      <div className="hero-orbit"><span className="orbit-core" /><span className="orbit-ring orbit-ring-one" /><span className="orbit-ring orbit-ring-two" /><span className="orbit-label">DAEPL / 1998</span></div>
     </section>
   );
 }
