@@ -1418,3 +1418,6 @@ body { font-size: 15.5px; }
 }
 @media (prefers-reduced-motion: reduce) { .page-hero-visual img { animation: none; } }
 @media (max-width: 1440px) { .page-hero-visual { right: 2vw; width: min(50vw, 760px); } }
+
+/* match the opaque 3D backdrop */
+.story { background: linear-gradient(90deg, #071629 0%, #0a1c36 55%); }

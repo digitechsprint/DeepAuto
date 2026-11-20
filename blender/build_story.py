@@ -54,6 +54,8 @@ board = mat("board", "#0b1f3a", 0.0, 0.6)
 board_edge = mat("board_edge", "#16345d", 0.2, 0.5)
 shell = mat("lamp_shell", "#1a2130", 0.1, 0.55, double=True)
 lens = mat("lens", "#dfe9f5", 0.0, 0.02, alpha=0.22, double=True)
+glass = mat("glass", "#ffffff", 0.0, 0.03, alpha=0.25, double=True)
+conduit = mat("conduit", "#1c2027", 0.0, 0.4)
 bulb = mat("bulb", "#fff6df", 0.0, 0.1, emit="#fff1c9")
 WIRE_COLORS = {"red": "#e52e36", "black": "#1d2430", "blue": "#0a6cf1", "green": "#00a651", "yellow": "#f2c230", "white": "#f2f4f7", "orange": "#f37a30"}
 wire = {k: mat("wire_" + k, v, 0.0, 0.42, emit=v) for k, v in WIRE_COLORS.items()}
@@ -81,15 +83,22 @@ class Part:
             f.material_index = mi
             f.smooth = smooth
 
-    def box(self, size, loc, m, rot=None):
+    def box(self, size, loc, m, rot=None, bevel=True):
         before = set(self.bm.faces)
-        bmesh.ops.create_cube(self.bm, size=1.0, matrix=T(loc, rot, size))
-        self._apply(before, m, False)
+        ret = bmesh.ops.create_cube(self.bm, size=1.0, matrix=T(loc, rot, size))
+        if bevel:
+            vs = ret["verts"]
+            es = list({e for v in vs for e in v.link_edges})
+            bmesh.ops.bevel(self.bm, geom=vs + es, offset=min(min(size) * 0.18, 0.022), offset_type="OFFSET", segments=3, profile=0.5, affect="EDGES", clamp_overlap=True)
+        self._apply(before, m, True)
 
     def cyl(self, r, depth, loc, m, axis="Z", segs=32, r2=None, rot=None, scale=(1, 1, 1)):
         before = set(self.bm.faces)
         R = (AX[axis] or []) + (rot or [])
-        bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=segs, radius1=r, radius2=r if r2 is None else r2, depth=depth, matrix=T(loc, R or None, scale))
+        ret = bmesh.ops.create_cone(self.bm, cap_ends=True, cap_tris=False, segments=segs, radius1=r, radius2=r if r2 is None else r2, depth=depth, matrix=T(loc, R or None, scale))
+        es = [e for e in {e for v in ret["verts"] for e in v.link_edges} if (e.calc_face_angle(None) or 0) > 1.2]
+        if es:
+            bmesh.ops.bevel(self.bm, geom=es, offset=min(min(r, depth) * 0.15, 0.015), offset_type="OFFSET", segments=2, profile=0.5, affect="EDGES", clamp_overlap=True)
         self._apply(before, m, True)
 
     def sphere(self, r, loc, m, scale=(1, 1, 1), segs=32, cut=None):
@@ -114,7 +123,17 @@ class Part:
                 self.bm.faces.new((a[i], b[i], b[j], a[j]))
         self._apply(before, m, True)
 
-    def tube(self, pts, r, m, segs=12, n=10):
+    def lathe(self, prof, loc, m, segs=64, scale=(1, 1, 1)):
+        """Surface of revolution around local Y from a (radius, y) profile."""
+        before = set(self.bm.faces)
+        M = T(loc, None, scale)
+        rings = [[self.bm.verts.new(M @ Vector((r * math.cos(2 * PI * k / segs), y, r * math.sin(2 * PI * k / segs)))) for k in range(segs)] for r, y in prof]
+        for i in range(len(rings) - 1):
+            for k in range(segs):
+                self.bm.faces.new((rings[i][k], rings[i][(k + 1) % segs], rings[i + 1][(k + 1) % segs], rings[i + 1][k]))
+        self._apply(before, m, True)
+
+    def tube(self, pts, r, m, segs=12, n=10, rfun=None, step=None, trim=(0, 0)):
         P = [Vector(p) for p in pts]
         S = []
         for i in range(len(P) - 1):
@@ -125,6 +144,20 @@ class Part:
                 t = k / n
                 S.append(0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t + (-p0 + 3 * p1 - 3 * p2 + p3) * t ** 3))
         S.append(P[-1])
+        if step or trim != (0, 0):  # resample evenly by arc length, optionally trimming the ends
+            L = [0.0]
+            for i in range(1, len(S)): L.append(L[-1] + (S[i] - S[i - 1]).length)
+            a, b = trim[0], L[-1] - trim[1]
+            ds = step or 0.02
+            out, j, d = [], 0, a
+            while d <= b + 1e-9:
+                while j < len(L) - 2 and L[j + 1] < d: j += 1
+                f = (d - L[j]) / max(1e-9, L[j + 1] - L[j])
+                out.append(S[j].lerp(S[j + 1], min(1, max(0, f))))
+                d += ds
+            S = out
+        arc = [0.0]
+        for i in range(1, len(S)): arc.append(arc[-1] + (S[i] - S[i - 1]).length)
         before = set(self.bm.faces)
         tang = [(S[min(i + 1, len(S) - 1)] - S[max(i - 1, 0)]).normalized() for i in range(len(S))]
         up = Vector((0, 0, 1)) if abs(tang[0].z) < 0.9 else Vector((1, 0, 0))
@@ -134,7 +167,7 @@ class Part:
             t = tang[i]
             nrm = (nrm - t * nrm.dot(t)).normalized()
             bi = t.cross(nrm)
-            rings.append([self.bm.verts.new(p + (nrm * math.cos(2 * PI * k / segs) + bi * math.sin(2 * PI * k / segs)) * r) for k in range(segs)])
+            rings.append([self.bm.verts.new(p + (nrm * math.cos(2 * PI * k / segs) + bi * math.sin(2 * PI * k / segs)) * (r * rfun(arc[i], k / segs) if rfun else r)) for k in range(segs)])
         for i in range(len(rings) - 1):
             for k in range(segs):
                 self.bm.faces.new((rings[i][k], rings[i][(k + 1) % segs], rings[i + 1][(k + 1) % segs], rings[i + 1][k]))
@@ -158,6 +191,9 @@ class Part:
         ob = bpy.data.objects.new(self.name, me)
         col.objects.link(ob)
         ob.parent = parent
+        wn = ob.modifiers.new("wn", "WEIGHTED_NORMAL")
+        wn.keep_sharp = True
+        wn.weight = 50
         return ob
 
 def group(name, parent=None, loc=(0, 0, 0)):
@@ -300,31 +336,12 @@ for c, pts in routes.items():
     p.finish(g4)
 
 p = Part("tape")
-def bands(path, a, b, step=0.17, ln=0.08, r=0.075):
-    S = []
-    P = [Vector(q) for q in path]
-    total = sum((P[i + 1] - P[i]).length for i in range(len(P) - 1))
-    d = a
-    while d < total - b:
-        acc = 0
-        for i in range(len(P) - 1):
-            L = (P[i + 1] - P[i]).length
-            if acc + L >= d:
-                t = (d - acc) / L
-                pos = P[i].lerp(P[i + 1], t)
-                dirv = (P[i + 1] - P[i]).normalized()
-                S.append((pos, dirv))
-                break
-            acc += L
-        d += step
-    for pos, dirv in S:
-        rot = dirv.to_track_quat("Z", "Y").to_matrix().to_4x4()
-        before = set(p.bm.faces)
-        bmesh.ops.create_cone(p.bm, cap_ends=True, cap_tris=False, segments=20, radius1=r, radius2=r, depth=ln, matrix=Matrix.Translation(pos) @ rot)
-        p._apply(before, tape, True)
-bands(TRUNK, 0.25, 0.25)
-bands(B1, 0.15, 0.2, r=0.055)
-bands(B2, 0.15, 0.2, r=0.055)
+spiral = lambda s, th: 1 + 0.05 * ((s / 0.05 + th) % 1.0)   # overlapping wraps of PVC tape
+p.tube(TRUNK, 0.068, tape, 28, 10, rfun=spiral, step=0.006, trim=(0.2, 0.2))
+p.tube(B1, 0.072, tape, 24, 10, rfun=spiral, step=0.006, trim=(0.0, 0.2))
+p.sphere(0.1, (-0.4, 0, 0.08), tape, (1.25, 1, 1.1), 24)                      # branch-out wrap
+p.tube(B2, 0.064, conduit, 24, 10, rfun=lambda s, th: 1 + 0.14 * math.sin(2 * PI * s / 0.032), step=0.004, trim=(0.06, 0.18))  # corrugated tube
+p.sphere(0.085, (0.5, 0, -0.07), tape, (1.2, 1, 1), 24)
 p.finish(g4)
 
 p = Part("clips")
@@ -383,32 +400,35 @@ p.finish(g5)
 # ================================================================ CH6 — headlamp: the harness's destination
 g6 = group("ch_lamp")
 p = Part("lamp_shell")
-p.sphere(0.95, (0, 0, 0), shell, (1, 0.72, 0.82), 48, cut=lambda co: co.y < -0.01)
-p.cyl(0.26, 0.4, (0, 0.78, 0), shell, "Y", 32)               # bulb socket boss
-p.box((0.36, 0.3, 0.26), (0.0, 1.05, -0.05), nylon_black)    # rear socket housing
-p.box((0.24, 0.012, 0.14), (0.0, 1.205, -0.05), cavity)
+p.lathe([(0.985, 0.0), (0.975, 0.14), (0.93, 0.32), (0.83, 0.5), (0.66, 0.65), (0.44, 0.76), (0.27, 0.8)], (0, 0, 0), shell, 72)
+p.cyl(0.27, 0.32, (0, 0.94, 0), shell, "Y", 40)               # socket boss
+p.box((0.38, 0.3, 0.28), (0.0, 1.17, 0.0), nylon_black)       # rear socket housing
+p.box((0.24, 0.012, 0.14), (0.0, 1.322, 0.0), cavity)
 for sx in (-1, 1):
-    p.box((0.18, 0.12, 0.08), (sx * 0.98, 0.15, -0.35), shell)  # mounting ears
+    p.box((0.16, 0.18, 0.12), (sx * 0.97, 0.3, 0), shell)      # mounting ears
+    p.cyl(0.03, 0.14, (sx * 1.0, 0.3, 0), tin, "Z", 16)
 p.finish(g6, recalc=False)
-p = Part("reflector")
-p.sphere(0.9, (0, -0.005, 0), chrome, (1, 0.66, 0.78), 48, cut=lambda co: co.y < -0.02)
+p = Part("reflector")                                          # true paraboloid, focus at y = 0.29
+f = 0.33
+p.lathe([(r, 0.62 - r * r / (4 * f)) for r in [0.12 + i * 0.81 / 48 for i in range(49)]], (0, 0, 0), chrome, 96)
 p.finish(g6, recalc=False)
-p = Part("bezel")
-p.ring(0.92, 1.02, 0.07, (0, -0.02, 0), steel_dark, "Y", 72, scale=(1, 0.82, 1))
-p.finish(g6)
+p = Part("bezel")                                              # rolled chrome trim ring
+p.lathe([(0.99 + 0.045 * math.cos(2 * PI * k / 24), -0.03 + 0.045 * math.sin(2 * PI * k / 24)) for k in range(25)], (0, 0, 0), chrome, 96)
+p.finish(g6, recalc=False)
 lb = Part("lamp_bulb")
-lb.sphere(0.11, (0, 0.38, 0), bulb, (1, 1.3, 1), 24)
-lb.cyl(0.06, 0.18, (0, 0.55, 0), tin, "Y", 20)
-lb.finish(g6)
-p = Part("lens")
-p.sphere(0.96, (0, -0.02, 0), lens, (1, 0.2, 0.82), 48, cut=lambda co: co.y > -0.01)
+lb.sphere(0.075, (0, 0.29, 0), glass, (1, 1.45, 1), 32)
+lb.tube([(0.014 * math.cos(k * 0.6), 0.255 + k * 0.0012, 0.014 * math.sin(k * 0.6)) for k in range(60)], 0.0045, bulb, 6, 1)  # coiled filament
+lb.cyl(0.05, 0.26, (0, 0.5, 0), tin, "Y", 24)
+lb.finish(g6, recalc=False)
+p = Part("lens")                                               # clear dome with fine optic rings
+p.lathe([(r, -0.15 * (1 - (r / 0.965) ** 2) - 0.004 * math.sin(r * 70) * (r / 0.965)) for r in [0.002 + i * 0.963 / 72 for i in range(73)]], (0, -0.02, 0), lens, 96)
 p.finish(g6, recalc=False)
 p = Part("lamp_plug")
-p.box((0.3, 0.26, 0.2), (0.0, 1.36, -0.05), nylon_grey)
-p.box((0.14, 0.08, 0.04), (0.0, 1.36, 0.07), nylon_grey)
+p.box((0.3, 0.26, 0.22), (0.0, 1.47, 0.0), nylon_grey)
+p.box((0.14, 0.1, 0.04), (0.0, 1.47, 0.13), nylon_grey)
 for i, c in enumerate(["yellow", "black", "red"]):
     x = (i - 1) * 0.07
-    p.tube([(x, 1.48, -0.05), (x, 1.75, -0.05), (x + 0.3, 2.05, -0.25), (x + 0.9, 2.3, -0.6)], 0.022, wire[c], 10, 8)
+    p.tube([(x, 1.58, 0.0), (x, 1.85, 0.0), (x + 0.3, 2.15, -0.2), (x + 0.9, 2.4, -0.55)], 0.022, wire[c], 10, 8)
 p.finish(g6)
 
 # ================================================================ export GLB
@@ -416,17 +436,16 @@ bpy.ops.object.select_all(action="SELECT")
 bpy.ops.export_scene.gltf(
     filepath=os.path.join(OUT, "daepl-story.glb"), export_format="GLB", export_yup=True,
     export_apply=True, export_materials="EXPORT", export_cameras=False, export_lights=False,
-    export_extras=False, use_selection=False,
+    export_extras=False, use_selection=False, export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=6,
 )
 print("EXPORTED", os.path.join(OUT, "daepl-story.glb"))
 
 # ================================================================ render stills
-scene.render.engine = "BLENDER_EEVEE_NEXT"
-try:
-    scene.eevee.taa_render_samples = 64
-    scene.eevee.use_raytracing = True
-except Exception:
-    pass
+scene.render.engine = "CYCLES"
+scene.cycles.device = "CPU"
+scene.cycles.samples = int(os.environ.get("SAMPLES", "96"))
+scene.cycles.use_denoising = True
+scene.cycles.transparent_max_bounces = 16
 scene.render.resolution_x, scene.render.resolution_y = 1400, 1000
 scene.render.film_transparent = True
 scene.render.image_settings.file_format = "PNG"
@@ -436,10 +455,27 @@ scene.view_settings.look = "AgX - Medium High Contrast"
 
 world = bpy.data.worlds.new("w")
 world.use_nodes = True
-bg = world.node_tree.nodes["Background"]
-bg.inputs["Color"].default_value = (*lin("#2a3f5f"), 1)
-bg.inputs["Strength"].default_value = 0.7
+wn_ = world.node_tree
+bg = wn_.nodes["Background"]
+HDRI = os.environ.get("HDRI")
+if HDRI:
+    env = wn_.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(HDRI)
+    wn_.links.new(env.outputs["Color"], bg.inputs["Color"])
+    bg.inputs["Strength"].default_value = 1.1
+else:
+    bg.inputs["Color"].default_value = (*lin("#2a3f5f"), 1)
+    bg.inputs["Strength"].default_value = 0.7
 scene.world = world
+bpy.ops.mesh.primitive_plane_add(size=40)
+catcher = bpy.context.active_object
+catcher.name = "shadow_catcher"
+catcher.is_shadow_catcher = True
+
+def place_catcher():
+    bpy.context.view_layer.update()
+    zs = [(o.matrix_world @ Vector(c)).z for o in bpy.data.objects if o.type == "MESH" and o is not catcher and not o.hide_render and all(not a.hide_render for a in [o.parent] if a) for c in o.bound_box]
+    catcher.location.z = min(zs) - 0.002 if zs else -1
 
 def area(name, loc, energy, size, color="#ffffff"):
     L = bpy.data.lights.new(name, "AREA")
@@ -452,15 +488,17 @@ def area(name, loc, energy, size, color="#ffffff"):
     return o
 
 target = group("target")
-area("key", (3, -4, 4), 900, 3)
-area("fill", (-4, -3, 1.5), 350, 4, "#bcd6ff")
-area("rim", (0, 4, 3), 600, 3, "#ffd2ad")
+area("key", (3, -4, 4), 350, 4)
+area("rim", (-1, 4, 3), 500, 3, "#ffd2ad")
 cam_data = bpy.data.cameras.new("cam")
 cam_data.lens = 50
 cam = bpy.data.objects.new("cam", cam_data)
 col.objects.link(cam)
 cam.constraints.new("TRACK_TO").target = target
 scene.camera = cam
+cam_data.dof.use_dof = True
+cam_data.dof.focus_object = target
+cam_data.dof.aperture_fstop = 1.6
 
 chapters = {"ch_strip": g1, "ch_crimp": g2, "ch_mould": g3, "ch_harness": g4, "ch_test": g5, "ch_lamp": g6}
 def show(*names):
@@ -478,7 +516,7 @@ shots = [
     ("mould", ["ch_mould"], (2.6, 2.9, 1.9), (0.0, 0.3, 0.0)),
     ("harness", ["ch_harness"], (0.0, -5.2, 1.2), (0.0, 0, 0.0)),
     ("test", ["ch_harness", "ch_test"], (1.6, -5.4, 1.6), (0.0, 0, 0.0)),
-    ("lamp", ["ch_lamp"], (-2.9, -2.6, 1.0), (0.0, 0.4, 0.0)),
+    ("lamp", ["ch_lamp"], (-3.7, -3.5, 1.2), (0.0, 0.35, 0.0)),
 ]
 O = lambda n: bpy.data.objects[n]
 for name, groups, cloc, tloc in shots:
@@ -491,7 +529,9 @@ for name, groups, cloc, tloc in shots:
     for w in wire.values(): emis(w, 0.0)
     for m in led: emis(m, 6.0 if name == "test" else 0.0)
     emis(screen, 3.0 if name == "test" else 0.0)
-    emis(bulb, 40.0 if name == "lamp" else 0.0)
+    emis(bulb, 600.0 if name == "lamp" else 0.0)
+    emis(glass, 0.0)
+    place_catcher()
     scene.render.filepath = os.path.join(OUT, f"story-{name}.png")
     bpy.ops.render.render(write_still=True)
     print("RENDERED", name)
