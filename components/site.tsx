@@ -16,6 +16,7 @@ const links = [
   { href: "/products/terminals", label: "Electrical terminals", group: "Products" },
   { href: "/products/sheet-metal", label: "Sheet metal components", group: "Products" },
   { href: "/products/plastic-moulding", label: "Plastic moulded parts", group: "Products" },
+  { href: "/how-we-work", label: "How we work (3D story)", group: "Capabilities" },
   { href: "/infrastructure", label: "Infrastructure & machines", group: "Capabilities" },
   { href: "/quality", label: "Quality & certifications", group: "Capabilities" },
   { href: "/rfq", label: "Request a quote", group: "Capabilities" },
@@ -25,6 +26,7 @@ const links = [
 const primaryLinks = [
   { href: "/about", label: "About" },
   { href: "/products", label: "Products" },
+  { href: "/how-we-work", label: "How we work" },
   { href: "/infrastructure", label: "Infrastructure" },
   { href: "/quality", label: "Quality" },
   { href: "/customers", label: "Customers" },

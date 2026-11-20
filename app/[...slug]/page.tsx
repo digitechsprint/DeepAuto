@@ -1,13 +1,14 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import {
-  AboutPage, AdminPreview, ApplicationPage, CareersPage, ContactPage, CustomersPage, InfrastructurePage, JobDetailPage, LegalPage,
+  AboutPage, AdminPreview, HowWeWorkPage, ApplicationPage, CareersPage, ContactPage, CustomersPage, InfrastructurePage, JobDetailPage, LegalPage,
   LifePage, LocationsPage, ProductCategoryPage, ProductDetailPage, QualityPage, ThankYouPage,
 } from "@/components/pages";
 import { categories, jobs } from "@/lib/company";
 
 const pages: Record<string, { title: string; description: string }> = {
   about: { title: "About Us — Trust On Quality since 1998", description: "Deep Auto Electricals Pvt. Ltd. — established November 1998 in Delhi. Our story, vision, quality policy, milestones, Vision 2027-28 road map and leadership." },
+  "how-we-work": { title: "How We Work — From Brass Coil to Headlamp", description: "Follow a Deep Auto wire harness through our plants in an interactive 3D story: tool room, power presses, cutting & crimping, injection moulding, harness assembly and electrical testing." },
   infrastructure: { title: "Infrastructure & Machines", description: "100+ machines: 44 semi-automatic crimping machines, 15 power presses, 6 injection moulding machines (35-180 ton), heat sealing, welding, in-house tool room and internal laboratory." },
   quality: { title: "Quality & Certifications — IATF 16949 & ISO 9001", description: "IATF 16949:2016 and ISO 9001:2015 certified by Quality Austria. Quality policy, major quality aspects and internal laboratory at Deep Auto Electricals." },
   customers: { title: "Our Customers", description: "Direct customers and the OEM brands — Suzuki, Honda, Hero, TVS, Mahindra, Tata and more — that DAEPL components reach." },
@@ -65,6 +66,7 @@ export default async function RoutePage({ params, searchParams }: { params: Prom
   if (second) notFound();
   switch (first) {
     case "about": return <AboutPage />;
+    case "how-we-work": return <HowWeWorkPage />;
     case "infrastructure": return <InfrastructurePage />;
     case "quality": return <QualityPage />;
     case "customers": return <CustomersPage />;

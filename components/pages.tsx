@@ -6,6 +6,7 @@ import { HomeHero } from "@/components/home-hero";
 import { ScrollReveal } from "@/components/scroll-reveal";
 import { StackCards } from "@/components/stack-cards";
 import { Counter, Gallery, JobBoard, ShareJob } from "@/components/interactive";
+import { HarnessExplorer, StoryScroller } from "@/components/story/story-sections";
 import {
   allProducts, categories, certBody, certificates, certScope, company, contacts, directCustomers, facilities, img, jobs, labEquipment,
   leadership, machineGroups, milestones, oemBrands, plants, qualityAspects, qualityPolicy, roadmap, stats, strengths, vision,
@@ -94,6 +95,18 @@ function Marquee({ items, reverse = false }: { items: string[]; reverse?: boolea
 
 const initials = (name: string) => name.replace(/^Mr\.?\s*/, "").split(/\s+/).map((w) => w[0]).join("").slice(0, 2);
 
+/* ---------------------------------------------------------------- how we work (3D story) */
+
+export function HowWeWorkPage() {
+  return (
+    <>
+      <PageHero eyebrow="HOW DEEP AUTO WORKS" title={<>From a coil of brass<br />to a light on the <span>road.</span></>} lead="Follow one wire harness through our plants: tool room, power presses, crimping, moulding, assembly and testing, all under one roof. Scroll to begin, and drag the model to look around." crumbs={[{ label: "How we work" }]} image={img.shopFloor} />
+      <StoryScroller />
+      <CtaBand title={<>Have a drawing?<br />We&apos;ll tool it, build it and test it.</>} text="Share your drawing, part number and quantity. Our team responds within one working day." />
+    </>
+  );
+}
+
 /* ---------------------------------------------------------------- home */
 
 export function HomePage() {
@@ -130,6 +143,13 @@ export function HomePage() {
               </ScrollReveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section className="explore-section section-space">
+        <div className="container">
+          <ScrollReveal className="section-heading heading-split"><div><Eyebrow light>INSIDE A DAEPL HARNESS</Eyebrow><h2>Take a harness apart.<br /><span>See how it&apos;s made.</span></h2></div><div className="heading-side"><p>A 3D model of a typical two-wheeler wire harness, built in Blender. Rotate it, tap the numbered points and run the circuit test, then follow the full journey from brass coil to headlamp.</p><Link href="/how-we-work" className="text-button">Scroll the full story <ArrowIcon /></Link></div></ScrollReveal>
+          <HarnessExplorer />
         </div>
       </section>
 
