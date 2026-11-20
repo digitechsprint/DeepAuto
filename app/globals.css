@@ -1421,3 +1421,20 @@ body { font-size: 15.5px; }
 
 /* match the opaque 3D backdrop */
 .story { background: linear-gradient(90deg, #071629 0%, #0a1c36 55%); }
+
+/* split hero v2: render sits in the container grid, hero fits the viewport */
+.page-hero-split { display: block; min-height: 0; }
+.page-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 48px; align-items: center; min-height: min(620px, calc(100svh - 130px)); padding-block: 48px; }
+.page-hero-split .page-hero-inner { padding-block: 0; }
+.page-hero-split .page-hero-inner > * { max-width: 560px; }
+.page-hero-split h1 { margin-top: 16px; font-size: clamp(44px, 5vw, 78px); }
+.page-hero-split .hero-chips { margin-top: 22px; }
+.page-hero-split .hero-actions { margin: 24px 0 26px; }
+.page-hero-split .breadcrumbs { margin-top: 0; }
+.page-hero-visual, .page-hero-split .page-hero-visual { position: relative; top: auto; right: auto; width: 100%; transform: none; margin: 0; padding: 0; opacity: 1; justify-self: end; }
+.page-hero-visual img { width: 100%; max-height: calc(100svh - 230px); min-height: 280px; object-fit: contain; object-position: right center; }
+@media (max-width: 1100px) { .page-hero-grid { gap: 24px; } .page-hero-split .page-hero-inner > * { max-width: none; } }
+@media (max-width: 900px) {
+  .page-hero-grid { grid-template-columns: 1fr; min-height: 0; padding-block: 48px 24px; gap: 8px; }
+  .page-hero-visual img { max-height: none; min-height: 0; object-position: center; }
+}

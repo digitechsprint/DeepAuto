@@ -101,7 +101,8 @@ export function HowWeWorkPage() {
   return (
     <>
       <section className="page-hero page-hero-split">
-        <div className="container page-hero-inner">
+        <div className="container page-hero-grid">
+        <div className="page-hero-inner">
           <Eyebrow light>HOW DEEP AUTO WORKS</Eyebrow>
           <h1>From brass coil<br />to <span>headlamp.</span></h1>
           <p>Follow one wire harness through our plants: tool room, power presses, crimping, moulding, assembly and testing, all under one roof. Scroll to begin, and drag the model to look around.</p>
@@ -113,6 +114,7 @@ export function HowWeWorkPage() {
           <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span className="crumb"><span aria-hidden="true">/</span><span aria-current="page">How we work</span></span></nav>
         </div>
         <div className="page-hero-visual" aria-hidden="true"><img src="/images/story/hero.webp" alt="" /></div>
+        </div>
       </section>
       <StoryScroller />
       <CtaBand title={<>Have a drawing?<br />We&apos;ll tool it, build it and test it.</>} text="Share your drawing, part number and quantity. Our team responds within one working day." />
