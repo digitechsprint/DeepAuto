@@ -100,7 +100,20 @@ const initials = (name: string) => name.replace(/^Mr\.?\s*/, "").split(/\s+/).ma
 export function HowWeWorkPage() {
   return (
     <>
-      <PageHero eyebrow="HOW DEEP AUTO WORKS" title={<>From a coil of brass<br />to a light on the <span>road.</span></>} lead="Follow one wire harness through our plants: tool room, power presses, crimping, moulding, assembly and testing, all under one roof. Scroll to begin, and drag the model to look around." crumbs={[{ label: "How we work" }]} image={img.shopFloor} />
+      <section className="page-hero page-hero-split">
+        <div className="container page-hero-inner">
+          <Eyebrow light>HOW DEEP AUTO WORKS</Eyebrow>
+          <h1>From brass coil<br />to <span>headlamp.</span></h1>
+          <p>Follow one wire harness through our plants: tool room, power presses, crimping, moulding, assembly and testing, all under one roof. Scroll to begin, and drag the model to look around.</p>
+          <ul className="hero-chips"><li><strong>6</strong> steps</li><li><strong>100+</strong> machines</li><li><strong>1</strong> roof</li></ul>
+          <div className="hero-actions">
+            <a href="#story" className="button button-lime">Start the story <span aria-hidden="true">↓</span></a>
+            <Link href="/rfq" className="button button-outline-light">Request a quote <ArrowIcon /></Link>
+          </div>
+          <nav className="breadcrumbs" aria-label="Breadcrumb"><Link href="/">Home</Link><span className="crumb"><span aria-hidden="true">/</span><span aria-current="page">How we work</span></span></nav>
+        </div>
+        <div className="page-hero-visual" aria-hidden="true"><img src="/images/story/hero.webp" alt="" /></div>
+      </section>
       <StoryScroller />
       <CtaBand title={<>Have a drawing?<br />We&apos;ll tool it, build it and test it.</>} text="Share your drawing, part number and quantity. Our team responds within one working day." />
     </>

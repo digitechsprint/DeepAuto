@@ -99,7 +99,7 @@ export function StoryScroller() {
   };
 
   return (
-    <section className="story" ref={section} aria-label="How Deep Auto works, step by step">
+    <section className="story" id="story" ref={section} aria-label="How Deep Auto works, step by step">
       <div className="story-stage">
         <div className={`story-viewport${mode === "3d" ? " is-3d" : ""}`} {...(mode === "3d" ? pointer : {})}>
           <div className={`story-posters${mode === "3d" && ready ? " is-hidden" : ""}`}>
