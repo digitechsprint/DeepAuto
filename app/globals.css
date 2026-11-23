@@ -1479,3 +1479,26 @@ html, body { overflow-x: clip; }
 .legal-content { max-width: none; }
 .legal-content > * { max-width: 820px; }
 .legal-content p:not(.legal-updated) { font-size: 15px; }
+
+/* ================================================================ Hero fit + right-edge alignment */
+:root { --topbar-h: 46px; --edge: max(40px, calc((100vw - 1320px) / 2)); }
+/* Floating shortcuts appear only after the first screen */
+.floating-actions { opacity: 0; visibility: hidden; transform: translateY(12px); transition: opacity .3s ease, transform .3s ease, visibility 0s .3s; }
+.floating-actions.is-visible { opacity: 1; visibility: visible; transform: none; transition: opacity .3s ease, transform .3s ease; }
+/* Home hero fills exactly one screen below the banner + header */
+.hero, .hero-content { min-height: clamp(520px, calc(100svh - var(--header-h) - var(--topbar-h)), 850px); }
+.hero-content { padding-top: 28px; padding-bottom: 96px; }
+.hero h1 { font-size: clamp(48px, min(8.3vw, 13.5svh), 112px); margin: 18px 0 16px; }
+/* Slide counter and orbit sit on the container's right edge, like the header */
+.hero-index { right: var(--edge); }
+.hero-orbit { right: calc(var(--edge) + 90px); top: 18%; }
+@media (max-width: 780px) {
+  :root { --topbar-h: 36px; --edge: 16px; }
+  .hero-index { right: 10px; }
+  .hero-orbit { right: 14%; }
+}
+/* "Get a quote" is always in the sticky header, so the floating stack keeps only call + WhatsApp, tucked into the corner */
+.floating-rfq { display: none; }
+.floating-actions { right: 14px; bottom: 16px; gap: 10px; }
+.floating-call, .floating-chat { width: 44px; height: 44px; }
+@media (max-width: 780px) { .hero-orbit { top: 12%; opacity: .35; } }
