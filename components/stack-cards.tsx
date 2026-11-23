@@ -64,7 +64,7 @@ export function StackCards() {
         <article
           key={card.title}
           className="stack-card"
-          style={{ "--card": card.color, "--card-ink": card.ink, zIndex: i + 1 } as React.CSSProperties}
+          style={{ "--card": `var(--card-${i + 1}, ${card.color})`, "--card-ink": `var(--card-ink-${i + 1}, ${card.ink})`, zIndex: i + 1 } as React.CSSProperties}
         >
           <div className="stack-media" style={{ backgroundImage: `url("${card.image}")` }} role="img" aria-label={card.title} />
           <Chevrons />

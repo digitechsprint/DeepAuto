@@ -79,8 +79,11 @@ function Backdrop({ inner = "#1a4176", outer = "#0a1c36" }: { inner?: string; ou
     c.width = c.height = 512;
     const g = c.getContext("2d")!;
     const grad = g.createRadialGradient(256, 240, 0, 256, 256, 360);
-    grad.addColorStop(0, inner);
-    grad.addColorStop(1, outer);
+    // Colour-option previews (?palette=…) repaint the 3D backdrop from the page tokens.
+    const root = document.documentElement;
+    const css = root.dataset.palette ? getComputedStyle(root) : null;
+    grad.addColorStop(0, css?.getPropertyValue("--deep-lift").trim() || inner);
+    grad.addColorStop(1, css?.getPropertyValue("--deep").trim() || outer);
     g.fillStyle = grad;
     g.fillRect(0, 0, 512, 512);
     const tex = new THREE.CanvasTexture(c);

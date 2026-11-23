@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { FloatingActions, SiteFooter, SiteHeader } from "@/components/site";
 import { ScrollEffects } from "@/components/scroll-effects";
+import { PaletteBar, paletteBootScript } from "@/components/palette-bar";
 import { company, plants } from "@/lib/company";
 import "./globals.css";
 
@@ -35,7 +36,10 @@ const orgSchema = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en-IN" data-scroll-behavior="smooth">
+    <html lang="en-IN" data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: paletteBootScript }} />
+      </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
         <SiteHeader />
@@ -43,6 +47,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <main>{children}</main>
         <SiteFooter />
         <FloatingActions />
+        <PaletteBar />
       </body>
     </html>
   );
