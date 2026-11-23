@@ -88,7 +88,7 @@ export function SiteHeader() {
 
   return (
     <>
-    <div className="topbar"><div className="container topbar-inner"><span><i className="topbar-dot" />IATF 16949:2016 &amp; ISO 9001:2015 certified · Since 1998</span><div><a href={company.landlineHref}>{company.landline}</a><a href={`mailto:${company.email}`}>{company.email}</a><Link href="/locations">Delhi · Haryana</Link></div></div></div>
+    <div className="topbar"><div className="container topbar-inner"><strong className="topbar-name">Deep Auto Electricals Pvt. Ltd.</strong><span className="topbar-certs"><i className="topbar-dot" />IATF 16949:2016 &amp; ISO 9001:2015 Certified<b aria-hidden="true">·</b>Since 1998</span></div></div>
     <header
       className={`site-header${panel ? " header-panel-open" : ""}${scrolled ? " is-scrolled" : ""}`}
     >

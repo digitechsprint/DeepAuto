@@ -1438,3 +1438,38 @@ body { font-size: 15.5px; }
   .page-hero-grid { grid-template-columns: 1fr; min-height: 0; padding-block: 48px 24px; gap: 8px; }
   .page-hero-visual img { max-height: none; min-height: 0; object-position: center; }
 }
+
+/* ================================================================ Header v2 — bigger, bolder, readable from a distance */
+:root { --header-h: 96px; }
+.topbar { background: linear-gradient(90deg, #06152b 0%, #0b2c5c 55%, #0a4fb4 100%); color: #fff; font-size: 14px; }
+.topbar-inner { min-height: 46px; }
+.topbar-name { font-family: var(--font-ui); font-size: 16px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #fff; }
+.topbar-inner > .topbar-certs { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .02em; color: #fff; }
+.topbar-certs b { color: var(--orange); font-weight: 800; }
+.site-header { background: #fff; backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom: 1px solid rgba(22,33,47,.08); }
+.site-header.is-scrolled { background: #fff; }
+.site-header::before { height: 4px; }
+.site-header .container { width: min(1320px, calc(100% - 64px)); }
+.nav-row { height: var(--header-h); }
+.brand-logo { height: 80px; }
+.primary-nav a { color: #0b1f3a; font-size: 16px; font-weight: 600; }
+.primary-nav a.is-active { color: #0a6cf1; font-weight: 700; }
+.header-cta { height: 50px; padding: 0 24px; font-size: 15px; font-weight: 800; }
+.header-panel { max-height: calc(100svh - var(--header-h)); }
+.hero, .hero-content { min-height: clamp(600px, calc(100svh - var(--header-h)), 850px); }
+.stack-section { --stack-top: var(--header-h); }
+@media (min-width: 901px) { .story-stage { top: var(--header-h); height: calc(100svh - var(--header-h)); } }
+.page-hero-grid { min-height: min(620px, calc(100svh - var(--header-h) - 50px)); }
+@media (max-width: 1440px) { .primary-nav a { padding: 10px 11px; font-size: 15.5px; } .nav-row { gap: 24px; } }
+@media (max-width: 1320px) { .primary-nav a { padding: 10px 9px; font-size: 15px; } .brand-logo { height: 74px; } .header-cta { padding: 0 18px; } }
+@media (max-width: 1100px) { .topbar-certs { font-size: 13px; } .topbar-name { font-size: 15px; } }
+@media (max-width: 900px) { .story-stage { top: var(--header-h); } }
+@media (max-width: 780px) {
+  :root { --header-h: 76px; }
+  .site-header .container { width: calc(100% - 32px); }
+  .brand-logo { height: 62px; }
+  .topbar { display: block; }
+  .topbar-inner { min-height: 36px; justify-content: center; }
+  .topbar-name { font-size: 13px; letter-spacing: .07em; }
+  .topbar-inner > .topbar-certs { display: none; }
+}
